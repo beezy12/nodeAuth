@@ -38,6 +38,7 @@
     "connect-redis": "^3.0.2",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
-    "jade": "^1.11.0"
+    "jade": "^1.11.0",
+    "mongoose": "^4.4.4"
   }
 }

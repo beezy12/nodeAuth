@@ -4,6 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
+const mongoose = require('mongoose');
+
+const userRoutes = require('./lib/user/routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,15 +22,12 @@ app.use(session({
     store: new RedisStore()
 }));
 
-// app.use((req, res, next) => {
-//     // this middleware counts the number of sessions. check the terminal, and refresh to watch counter go up.
-//     // even if you add a space somewhere, nodemon will restart the server
+app.use(userRoutes);
 
-//     req.session.count = req.session.count || 0;
-//     req.session.count++;
-//     console.log(req.session);
-//     next();
-// });
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || {email: 'Guest'};
+    next();
+});
 
 // req.url counts how many times you've gone to that same url
 // browse around the site, and check terminal for counts of each url path
@@ -40,41 +40,32 @@ app.use((req, res, next) => {
       next();
 });
 
-
-
 app.get('/', (req, res) => {
-	res.render('index');
-});
-
-app.get('/login', (req, res) => {
-	res.render('login');
-});
-
-app.post('/login', (req, res) => {
-	res.redirect('/');
-});
-
-app.get('/register', (req, res) => {
-	res.render('register');
-});
-
-app.post('/register', (req, res) => {
-	if (req.body.password === req.body.verify) {
-		res.redirect('/login');
-	} else {
-		res.render('register', {
-			email: req.body.email,
-			message: 'passwords do not match'
-		})
-	}
+    res.render('index');
 });
 
 
 
 
 
+// app.use((req, res, next) => {
+//     // this middleware counts the number of sessions. check the terminal, and refresh to watch counter go up.
+//     // even if you add a space somewhere, nodemon will restart the server
 
-app.listen(PORT, () => {
-	console.log(`app server is running on port ${PORT}`)
-})
+//     req.session.count = req.session.count || 0;
+//     req.session.count++;
+//     console.log(req.session);
+//     next();
+// });
+
+
+
+mongoose.connect('mongodb://localhost:27017/nodeAuth', (err) => {
+    if(err) throw err;
+
+    app.listen(PORT, () => {
+        console.log(`app server is running on port ${PORT}`)
+    });
+});
+
 
