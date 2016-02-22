@@ -22,8 +22,27 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-	res.redirect('/')
+	res.redirect('/');
 });
+
+app.get('/register', (req, res) => {
+	res.render('register');
+});
+
+app.post('/register', (req, res) => {
+
+	if (req.body.password === req.body.verify) {
+		res.redirect('/login');
+	} else {
+		res.render('register', {
+			email: req.body.email,
+			message: 'passwords do not match'
+		})
+	}
+});
+
+
+
 
 
 

@@ -1,0 +1,15 @@
+if message
+	p= message
+
+form(action='/register' method='POST')
+	.input-group
+		label(for='email') Email
+		input#email(type='email', name='email', autofocus, required, value=email)
+	.input-group
+		label(for='pass') Password
+		input#pass(type='password', name='password')
+	.input-group
+		label(for='pass-verify') Password Verify
+		input#pass-verify(type='password', name='verify')
+	.input-group
+		input(type='submit', value='register')
