@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const mongoose = require('mongoose');
-
+// so session counts the number of url visits, and Redis stores the count
 const userRoutes = require('./lib/user/routes');
 
 const app = express();
