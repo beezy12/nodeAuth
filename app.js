@@ -3,11 +3,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+// so session counts the number of url visits, and Redis stores the count
 const RedisStore = require('connect-redis')(session);
 const mongoose = require('mongoose');
-// so session counts the number of url visits, and Redis stores the count
 const userRoutes = require('./lib/user/routes');
 const methodOverride = require('method-override');
+const passport = require('passport');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,15 +20,22 @@ app.use(bodyParser.urlencoded({extended:false}));
 
 // set this up to get delete method working for logout
 app.use(methodOverride('_method'))
+
 // redis will keep the session count going, even after the server has been stopped and restarted
 app.use(session({
 	secret: SESSION_SECRET,
     store: new RedisStore()
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(userRoutes);
+app.locals.title = '';
 
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || {email: 'Guest'};
+    console.log(req);
+    res.locals.user;
     next();
 });
 
@@ -45,9 +53,6 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     res.render('index');
 });
-
-app.use(userRoutes);
-
 
 
 
