@@ -9,13 +9,14 @@ const mongoose = require('mongoose');
 const userRoutes = require('./lib/user/routes');
 const methodOverride = require('method-override');
 const passport = require('passport');
+const flash = require('connect-flash');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'supersecret'
 
 app.set('view engine', 'jade');
-
 app.use(bodyParser.urlencoded({extended:false}));
 
 // set this up to get delete method working for logout
@@ -23,21 +24,31 @@ app.use(methodOverride('_method'))
 
 // redis will keep the session count going, even after the server has been stopped and restarted
 app.use(session({
-	secret: SESSION_SECRET,
-    store: new RedisStore()
+    secret: SESSION_SECRET,
+    store: new RedisStore(),
+    resave: false,
+    saveUninitialized: true
 }));
 
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(userRoutes);
+
 app.locals.title = '';
 
 app.use((req, res, next) => {
-    console.log(req);
-    res.locals.user;
+    res.locals.user = req.user;
     next();
 });
+
+// console.log req a lot to see what is being added onto req by middleware
+app.use((req, res, next) => {
+    res.locals.messages = req.flash();
+    console.log(res)
+    next();
+});
+
 
 // req.url counts how many times you've gone to that same url
 // browse around the site, and check terminal for counts of each url path
@@ -50,6 +61,7 @@ app.use((req, res, next) => {
       next();
 });
 
+app.use(userRoutes);
 app.get('/', (req, res) => {
     res.render('index');
 });
